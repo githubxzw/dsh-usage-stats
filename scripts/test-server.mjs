@@ -867,11 +867,40 @@ async function testZeroUsageRowsFiltered(root) {
 	};
 	const sessions = { list: () => [{ id: "zero-session", events: [zero, usageEvent(2, 9)] }] };
 	const ctx = makeContext({ sessions, persistence: { listSnapshots: async () => [], list: async () => [] } });
-	const usage = await plugin.collectUsage(ctx);
-	assert.equal(usage.total.tokens, 9);
-	const day = usage.days.find((entry) => entry.date === "2026-08-13");
+	const base = await plugin.collectUsage(ctx);
+	assert.equal(base.total.tokens, 9);
+	const day = base.days.find((entry) => entry.date === "2026-08-13");
 	assert.equal(day.models.length, 1, "all-zero model buckets must not render as rows");
 	assert.equal(day.models[0].model, "unknown/deepseek-chat");
+}
+
+async function testLiveWithoutEventsFallsBackToPersistence(root) {
+	const plugin = await freshModule("live-no-events", join(root, "live-no-events"));
+	// Newer DSH builds persist session events server-side; live list entries
+	// carry no `events` array. The usage fold must neither crash nor drop the
+	// session — the sessionPersistence path supplies the same log.
+	const id = "live-no-events-session";
+	const sessions = { list: () => [{ id, title: "No Events", events: undefined }] };
+	const persistence = {
+		listSnapshots: async () => [{ header: { id }, revision: "r1" }],
+		list: async () => [],
+		readFrom: async () => ({ events: [usageEvent(1, 5), usageEvent(2, 7)] })
+	};
+	const ctx = makeContext({ sessions, persistence });
+	const usage = await plugin.collectUsage(ctx);
+	assert.equal(usage.total.tokens, 12, "live-list entries without events must fold via sessionPersistence");
+
+	// Mixed: sessions with an in-memory events array still fold live; a
+	// second, events-less session still defers to persistence.
+	const mixed = await plugin.collectUsage(makeContext({
+		sessions: { list: () => [{ id: "a", events: [usageEvent(1, 11)] }, { id: "b", events: void 0 }] },
+		persistence: {
+			listSnapshots: async () => [{ header: { id: "b" }, revision: "r1" }],
+			list: async () => [],
+			readFrom: async () => ({ events: [usageEvent(1, 13)] })
+		}
+	}));
+	assert.equal(mixed.total.tokens, 24, "events-less live sessions must not be dropped in a mixed fold");
 }
 
 const root = await mkdtemp(join(tmpdir(), "dsh-usage-stats-"));
@@ -894,6 +923,7 @@ try {
 	await testFallbackIncremental(root);
 	await testLiveLogShrink(root);
 	await testZeroUsageRowsFiltered(root);
+	await testLiveWithoutEventsFallsBackToPersistence(root);
 	console.log("SERVER REGRESSION TESTS PASSED");
 } finally {
 	delete process.env.DSH_HOME;
