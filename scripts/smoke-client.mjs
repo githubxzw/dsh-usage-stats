@@ -142,7 +142,7 @@ const {
 	writeSelectedProvider
 } = exports_;
 assert.equal(ORCAROUTER_ADD_SENTINEL, "__add_orcarouter__");
-assert.equal(SELECTED_PROVIDER_STORAGE_KEY, "@ychris12138/dsh-usage-stats:selected-provider:v1");
+assert.equal(SELECTED_PROVIDER_STORAGE_KEY, "@xzw/dsh-usage-stats:selected-provider:v1");
 assert.equal(authoritativeProviderList({ ok: false, providers: [] }), null, "a transient provider error must not become an authoritative empty list");
 assert.equal(authoritativeProviderList(null), null);
 writeSelectedProvider("opencode-go", localStorage);

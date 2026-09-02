@@ -1,7 +1,7 @@
 {
-  "name": "@ychris12138/dsh-usage-stats",
-  "description": "Token usage, provider accounts, session cost estimates, budgets, and exports for the dsh web GUI",
-  "version": "0.3.1",
+  "name": "@xzw/dsh-usage-stats",
+  "description": "Local fork of @ychris12138/dsh-usage-stats (c6212d9, v0.3.1) + New-API daily-limit percent windows; patched accounts.js is never overwritten by upstream updates.",
+  "version": "0.3.1+local.1",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Ychris12138/dsh-usage-stats.git"

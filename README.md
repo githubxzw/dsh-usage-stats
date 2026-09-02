@@ -1,4 +1,15 @@
 # dsh-usage-stats
+## Local fork（@xzw/dsh-usage-stats）
+
+- 上游：`Ychris12138/dsh-usage-stats` @ `c6212d9a`（v0.3.1），分支 `local-winning-token`。
+- 本地补丁：`lib/accounts.js` — declarative `subscription` 模式支持单对象 `items`
+  与 `extract.kindValue` 字面量（上游要求数组，wincode 的 daily-limit 返回单对象）。
+- 用途：winning-token 每日限额以"每日窗口"百分比进度条 + 零点重置倒计时展示，
+  monitor 配置见 `~/.dsh/profiles/web/cordis.patch.yml`。
+- 以 `link:` 方式安装进 web profile，`dsh plugin update` 不会触碰本仓库源码。
+- 同步上游：`git fetch https://github.com/Ychris12138/dsh-usage-stats main && git merge`
+  （冲突集中在 `customSubscription`，补丁语义照抄即可）。
+
 
 <!-- stable-version: 0.3.1 -->
 
@@ -39,7 +50,7 @@ Provider balances, subscription quotas, and token-usage analytics for the DeepSe
 稳定版优先安装 npm 上的精确版本；这也是 DSH Desktop Market 使用的同一个包：
 
 ```bash
-dsh plugin --profile web add "@ychris12138/dsh-usage-stats@0.3.1"
+dsh plugin --profile web add "@xzw/dsh-usage-stats@0.3.1"
 ```
 
 只有测试尚未发布的 source/RC 时才使用 `dsh plugin --profile web add "github:Ychris12138/dsh-usage-stats"`。GitHub `main` 可能领先 npm stable，不应把 source 安装当作市场安装验收。
@@ -53,7 +64,7 @@ dsh plugin --profile web add "@ychris12138/dsh-usage-stats@0.3.1"
 - `catalog/catalog-source.json` — 来源 manifest（`catalog-source.schema.json` v1.0.0）
 - `catalog/v1/plugins.json` — 标准 provider page（`catalog-provider-page.schema.json` v1.0.0）
 
-**使用前提（重要）**：市场托管安装只接受 npm registry 的精确稳定版本，git 条目仅可浏览。`dsh-usage-stats` 这个 npm 名已被其他项目占用，因此目录条目身份使用 `@ychris12138/dsh-usage-stats`。当前 stable/catalog 版本是 `0.3.1`；每个新版本都按以下顺序发布：
+**使用前提（重要）**：市场托管安装只接受 npm registry 的精确稳定版本，git 条目仅可浏览。`dsh-usage-stats` 这个 npm 名已被其他项目占用，因此目录条目身份使用 `@xzw/dsh-usage-stats`。当前 stable/catalog 版本是 `0.3.1`；每个新版本都按以下顺序发布：
 
 1. 运行 `npm run release:sync -- <version>` 同步 `package.json` / `package-lock.json` / `catalog/v1/plugins.json`，再由 `npm run check:release` 阻止身份或版本漂移。
 2. 发布 scoped 公共包：`npm publish --access public`。
@@ -65,8 +76,8 @@ dsh plugin --profile web add "@ychris12138/dsh-usage-stats@0.3.1"
 升级或卸载：
 
 ```bash
-dsh plugin --profile web update "@ychris12138/dsh-usage-stats"
-dsh plugin --profile web remove "@ychris12138/dsh-usage-stats"
+dsh plugin --profile web update "@xzw/dsh-usage-stats"
+dsh plugin --profile web remove "@xzw/dsh-usage-stats"
 ```
 
 <details>
@@ -78,7 +89,7 @@ PowerShell、命令提示符和 macOS/Linux 终端使用同一条命令：
 npx --yes github:Ychris12138/dsh-usage-stats
 ```
 
-安装器会把运行文件复制到 `~/.dsh/profiles/node_modules/@ychris12138/dsh-usage-stats`，并在 `profiles/web/cordis.patch.yml` 中以带引号的 scoped identity 幂等启用插件。重复运行即可更新，不会重复追加配置；旧版 `name: dsh-usage-stats` 和未加引号的 `name: @ychris12138/dsh-usage-stats` 会自动迁移。设置了 `DSH_HOME` 时使用该目录。
+安装器会把运行文件复制到 `~/.dsh/profiles/node_modules/@xzw/dsh-usage-stats`，并在 `profiles/web/cordis.patch.yml` 中以带引号的 scoped identity 幂等启用插件。重复运行即可更新，不会重复追加配置；旧版 `name: dsh-usage-stats` 和未加引号的 `name: @xzw/dsh-usage-stats` 会自动迁移。设置了 `DSH_HOME` 时使用该目录。
 
 `dsh plugin` 与 `npx` 是两条独立安装路径，请选择其中一种；不要同时保留手工 Cordis entry 和 bundle 注册，否则会重复挂载。
 
@@ -131,7 +142,7 @@ npx --yes github:Ychris12138/dsh-usage-stats --no-enable
 # ~/.dsh/profiles/web/cordis.patch.yml
 - insert:
     - id: usage-stats
-      name: "@ychris12138/dsh-usage-stats"
+      name: "@xzw/dsh-usage-stats"
       config:
         refresh:
           enabled: false
@@ -152,7 +163,7 @@ npx --yes github:Ychris12138/dsh-usage-stats --no-enable
 # ~/.dsh/profiles/web/cordis.patch.yml
 - insert:
     - id: usage-stats
-      name: "@ychris12138/dsh-usage-stats"
+      name: "@xzw/dsh-usage-stats"
       config:
         budgets:
           currency: USD
@@ -222,7 +233,7 @@ Z.ai 全球区使用 `api.z.ai`，中国区使用 `open.bigmodel.cn`。MiniMax �
 
 ### New API、Sub2API 与自定义 monitor
 
-在现有 `name: "@ychris12138/dsh-usage-stats"` Cordis entry 下合并 `config`，不要追加第二个插件 entry。monitor 键必须是 Harness 中真实存在的 provider id；未知 provider、adapter 或非法映射会在路由和 timer 注册前阻止插件启动。例外：monitor 同时显式提供 `usageBaseURL` 与 `credentialRef` 时视为自包含，会在 provider 注册可见前临时物化为 provider（适用于 Harness 设置页里后加载的 provider），此时不要求该 provider 已出现在注册表中。
+在现有 `name: "@xzw/dsh-usage-stats"` Cordis entry 下合并 `config`，不要追加第二个插件 entry。monitor 键必须是 Harness 中真实存在的 provider id；未知 provider、adapter 或非法映射会在路由和 timer 注册前阻止插件启动。例外：monitor 同时显式提供 `usageBaseURL` 与 `credentialRef` 时视为自包含，会在 provider 注册可见前临时物化为 provider（适用于 Harness 设置页里后加载的 provider），此时不要求该 provider 已出现在注册表中。
 
 <details>
 <summary><strong>展开 monitor 配置示例</strong></summary>
@@ -233,7 +244,7 @@ New API 默认用 provider 推理 Token 查询 `/api/usage/token/`，并从 `/ap
 # ~/.dsh/profiles/web/cordis.patch.yml
 - insert:
     - id: usage-stats
-      name: "@ychris12138/dsh-usage-stats"
+      name: "@xzw/dsh-usage-stats"
       config:
         monitors:
           relay-a:                 # Harness provider id
@@ -349,7 +360,7 @@ Constraints:
 
 Procedure:
 1. Confirm node, npx, and dsh are available.
-2. Prefer the exact npm stable used by Desktop Market: `dsh plugin --profile web add "@ychris12138/dsh-usage-stats@0.3.1"` (or update the existing scoped package).
+2. Prefer the exact npm stable used by Desktop Market: `dsh plugin --profile web add "@xzw/dsh-usage-stats@0.3.1"` (or update the existing scoped package).
 3. Use `github:Ychris12138/dsh-usage-stats` only when I explicitly ask to test unreleased source/RC code.
 4. If dsh plugin is unavailable, use the compatible source installer only with my approval: `npx --yes github:Ychris12138/dsh-usage-stats`.
 5. Do not combine bundle installation with an existing manual dsh-usage-stats Cordis entry.
