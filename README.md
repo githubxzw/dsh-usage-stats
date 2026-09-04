@@ -11,7 +11,7 @@
   （冲突集中在 `customSubscription`，补丁语义照抄即可）。
 
 
-<!-- stable-version: 0.3.1 -->
+<!-- stable-version: 0.3.1+local.1 -->
 
 [![GitHub Release](https://img.shields.io/github/v/release/Ychris12138/dsh-usage-stats?display_name=tag&sort=semver&color=1f6feb)](https://github.com/Ychris12138/dsh-usage-stats/releases/latest)
 [![CI](https://github.com/Ychris12138/dsh-usage-stats/actions/workflows/ci.yml/badge.svg)](https://github.com/Ychris12138/dsh-usage-stats/actions/workflows/ci.yml)
@@ -50,7 +50,7 @@ Provider balances, subscription quotas, and token-usage analytics for the DeepSe
 稳定版优先安装 npm 上的精确版本；这也是 DSH Desktop Market 使用的同一个包：
 
 ```bash
-dsh plugin --profile web add "@xzw/dsh-usage-stats@0.3.1"
+dsh plugin --profile web add "@xzw/dsh-usage-stats@0.3.1+local.1"
 ```
 
 只有测试尚未发布的 source/RC 时才使用 `dsh plugin --profile web add "github:Ychris12138/dsh-usage-stats"`。GitHub `main` 可能领先 npm stable，不应把 source 安装当作市场安装验收。
@@ -360,7 +360,7 @@ Constraints:
 
 Procedure:
 1. Confirm node, npx, and dsh are available.
-2. Prefer the exact npm stable used by Desktop Market: `dsh plugin --profile web add "@xzw/dsh-usage-stats@0.3.1"` (or update the existing scoped package).
+2. Prefer the exact npm stable used by Desktop Market: `dsh plugin --profile web add "@xzw/dsh-usage-stats@0.3.1+local.1"` (or update the existing scoped package).
 3. Use `github:Ychris12138/dsh-usage-stats` only when I explicitly ask to test unreleased source/RC code.
 4. If dsh plugin is unavailable, use the compatible source installer only with my approval: `npx --yes github:Ychris12138/dsh-usage-stats`.
 5. Do not combine bundle installation with an existing manual dsh-usage-stats Cordis entry.
